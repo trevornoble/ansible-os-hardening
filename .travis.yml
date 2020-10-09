@@ -8,28 +8,13 @@ env:
     - run_opts="--cap-add SYS_ADMIN"
     - volume="/sys/fs/cgroup:/sys/fs/cgroup:ro"
   jobs:
-    - distro=centos6
-      volume=":"
-      run_opts=""
-    - distro=centos7
-    - distro=centos8
-    - distro=oracle6
-      volume=":"
-      run_opts=""
-    # - distro=oracle7
     - distro=ubuntu1604
     - distro=ubuntu1804
-    - distro=debian9
-      init=/lib/systemd/systemd
-    - distro=debian10
-    - distro=amazon
-    - distro=fedora
-      init=/lib/systemd/systemd
-    - distro=opensuse_tumbleweed
-      run_opts="--privileged"
-    - distro=arch
       init=/usr/lib/systemd/systemd
-      run_opts="--privileged"
+    - distro=ubuntu2004
+      init=/usr/lib/systemd/systemd
+    - distro=debian9
+    - distro=debian10
 
 before_install:
   # Pull container

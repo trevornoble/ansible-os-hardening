@@ -29,6 +29,13 @@ os_security_suid_sgid_system_blacklist:
   - '/usr/bin/mail-unlock'
   - '/usr/bin/mail-touchlock'
   - '/usr/bin/dotlockfile'
+  # blacklist Xorg
+  - '/usr/bin/Xorg'                                              # xorg
+  - '/usr/bin/X'                                                 # xorg
+  - '/usr/lib/dbus-1.0/dbus-daemon-launch-helper'                # freedesktop ipc
+  - '/usr/lib/vte/gnome-pty-helper'                              # gnome
+  - '/usr/lib/libvte9/gnome-pty-helper'                          # gnome
+  - '/usr/lib/libvte-2.90-9/gnome-pty-helper'                     # gnome
   # need more investigation blacklist for now
   - '/usr/bin/arping'
   - '/usr/sbin/uuidd'
@@ -100,13 +107,6 @@ os_security_suid_sgid_system_whitelist:
   - '/usr/kerberos/bin/ksu'
   # whitelist pam_caching
   - '/usr/sbin/ccreds_validate'
-  # whitelist Xorg
-  - '/usr/bin/Xorg'                                              # xorg
-  - '/usr/bin/X'                                                 # xorg
-  - '/usr/lib/dbus-1.0/dbus-daemon-launch-helper'                # freedesktop ipc
-  - '/usr/lib/vte/gnome-pty-helper'                              # gnome
-  - '/usr/lib/libvte9/gnome-pty-helper'                          # gnome
-  - '/usr/lib/libvte-2.90-9/gnome-pty-helper'                     # gnome
 
 # system accounts that do not get their login disabled and pasword changed
 os_always_ignore_users: ['root', 'sync', 'shutdown', 'halt']

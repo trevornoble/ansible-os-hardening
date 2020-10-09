@@ -51,10 +51,6 @@
 - import_tasks: rhosts.yml
   tags: rhosts
 
-- import_tasks: yum.yml
-  when: ansible_facts.os_family == 'RedHat'
-  tags: yum
-
 - import_tasks: apt.yml
   when: ansible_facts.distribution in ['Debian', 'Ubuntu']
   tags: apt
