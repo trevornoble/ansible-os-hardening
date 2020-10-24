@@ -33,13 +33,6 @@ provisioner:
   playbook: tests/test.yml
 
 platforms:
-  - name: ubuntu1604-ansible-latest
-    driver:
-      image: rndmh3ro/docker-ubuntu1604-ansible:latest
-      platform: ubuntu
-      provision_command:
-        - systemctl enable ssh.service
-
   - name: ubuntu1804-ansible-latest
     driver:
       image: rndmh3ro/docker-ubuntu1804-ansible:latest
