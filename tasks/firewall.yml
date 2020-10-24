@@ -1,0 +1,171 @@
+---
+- name: add the nf_conntrack module
+  become: 'yes'
+  modprobe:
+    name: nf_conntrack
+    state: present
+  tags:
+    - conntrack
+    - sysctl
+
+- name: stat nf_conntrack_tcp_be_liberal
+  become: 'yes'
+  stat:
+    path: /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+  register: conntrackliberal
+  tags:
+    - conntrack
+    - sysctl
+
+- name: enable nf_conntrack_tcp_be_liberal to keep connections alive
+  become: 'yes'
+  sysctl:
+    name: net.netfilter.nf_conntrack_tcp_be_liberal
+    value: "1"
+    state: present
+    sysctl_set: 'yes'
+    reload: 'yes'
+  when: conntrackliberal.stat.exists and ansible_os_family == "Debian"
+  tags:
+    - conntrack
+    - sysctl
+
+- name: ufw installation
+  become: 'yes'
+  apt:
+    name: "ufw"
+    state: present
+    install_recommends: 'no'
+  when: ansible_os_family == "Debian"
+  tags:
+    - apt
+    - packages
+    - ufw
+
+- name: set ufw IPT_SYSCTL
+  become: 'yes'
+  lineinfile:
+    regexp: "^IPT_SYSCTL="
+    line: "IPT_SYSCTL=/etc/sysctl.conf"
+    dest: /etc/default/ufw
+    mode: 0640
+    state: present
+    create: 'no'
+    backrefs: 'yes'
+  tags:
+    - ufw
+  when: ansible_os_family == "Debian"
+
+- name: reset ufw
+  become: 'yes'
+  environment:
+    PATH: /usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/bin
+  ufw:
+    state: reset
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+    - molecule-idempotence-notest
+
+- name: allow loopback traffic in
+  become: 'yes'
+  ufw:
+    rule: allow
+    interface: lo
+    direction: in
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+
+- name: allow loopback traffic out
+  become: 'yes'
+  ufw:
+    rule: allow
+    interface: lo
+    direction: out
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+
+- name: deny rpcbind ufw
+  become: 'yes'
+  ufw:
+    rule: deny
+    port: "111"
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+    - rpcbind
+
+- name: allow ssh ufw
+  become: 'yes'
+  ufw:
+    rule: allow
+    src: "{{ item }}"
+    port: "{{ sshd_port|int }}"
+    proto: tcp
+  with_items:
+    - "{{ sshd_admin_net }}"
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+    - ssh
+
+- name: deny loopback network traffic
+  become: 'yes'
+  ufw:
+    rule: deny
+    src: '{{ item }}'
+  loop:
+    - 127.0.0.0/8
+    - ::1
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+
+# https://github.com/ansible/ansible/issues/45446
+- name: enable ufw and set default deny incoming
+  become: 'yes'
+  environment:
+    PATH: /usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:/bin
+  ufw:
+    state: enabled
+    direction: incoming
+    policy: deny
+    logging: low
+  when: ansible_os_family == "Debian"
+  tags:
+    - ufw
+
+- name: stat firewalld conf
+  become: 'yes'
+  stat:
+    path: /etc/firewalld/firewalld.conf
+  register: firewalldconf
+  tags:
+    - firewalld
+
+- name: set firewalld DefaultZone
+  become: 'yes'
+  lineinfile:
+    regexp: "^DefaultZone="
+    line: "DefaultZone=public"
+    dest: /etc/firewalld/firewalld.conf
+    mode: 0640
+    state: present
+    create: 'no'
+    backrefs: 'yes'
+  when: firewalldconf.stat.exists
+  tags:
+    - firewalld
+
+- name: enable firewalld
+  become: 'yes'
+  service:
+    name: firewalld
+    state: started
+    enabled: 'yes'
+  when: firewalldconf.stat.exists
+  tags:
+    - firewalld
+...

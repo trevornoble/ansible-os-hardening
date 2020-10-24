@@ -8,7 +8,6 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - xenial
         - bionic
         - focal
     - name: Debian
@@ -17,6 +16,9 @@ galaxy_info:
         - buster
   galaxy_tags:
     - system
+	- systemd
     - security
     - hardening
+	- debian
+	- ubuntu
 dependencies: []

@@ -1,0 +1,23 @@
+---
+- name: apt update
+  become: 'yes'
+  apt:
+    update_cache: 'yes'
+    cache_valid_time: 1800
+  notify:
+    - apt-get clean
+    - apt-get autoremove
+  when: ansible_os_family == "Debian"
+  tags:
+    - apt
+
+- name: apt upgrade
+  become: 'yes'
+  apt:
+    upgrade: safe
+  register: apt_upgrade_response
+  changed_when: not apt_upgrade_response.stdout.find('0 upgraded') != -1
+  when: ansible_os_family == "Debian" and system_upgrade|bool
+  tags:
+    - apt
+...
